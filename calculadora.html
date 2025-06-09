@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calculadora {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+            width: 100%;
+            animation: slideIn 0.8s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .tema-escuro {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+
+        .tema-escuro .calculadora {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px 20px;
+            margin-bottom: 25px;
+            text-align: right;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 300;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            overflow: hidden;
+            word-wrap: break-word;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .expressao {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5px;
+            min-height: 25px;
+        }
+
+        .resultado {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .botao-tema {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: white;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .botao-tema:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(180deg);
+        }
+
+        .botoes {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn.operador {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .btn.operador:hover {
+            background: linear-gradient(135deg, #ff5252, #e53e3e);
+        }
+
+        .btn.igual {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            grid-column: span 2;
+        }
+
+        .btn.igual:hover {
+            background: linear-gradient(135deg, #26d0ce, #2ed573);
+        }
+
+        .btn.limpar {
+            background: linear-gradient(135deg, #ffa726, #ff7043);
+        }
+
+        .btn.limpar:hover {
+            background: linear-gradient(135deg, #ff9800, #ff5722);
+        }
+
+        .btn.zero {
+            grid-column: span 2;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        @media (max-width: 480px) {
+            .calculadora {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .display {
+                font-size: 2rem;
+                padding: 20px 15px;
+            }
+            
+            .btn {
+                padding: 15px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculadora">
+        <button class="botao-tema" onclick="alternarTema()">🌙</button>
+        <div class="display" id="display">
+            <div class="expressao" id="expressao"></div>
+            <div class="resultado" id="resultado">0</div>
+        </div>
+        <div class="botoes">
+            <button class="btn limpar" onclick="limparTudo()">C</button>
+            <button class="btn limpar" onclick="limparUltimo()">⌫</button>
+            <button class="btn operador" onclick="adicionarOperador('/')">&divide;</button>
+            <button class="btn operador" onclick="adicionarOperador('*')">&times;</button>
+            
+            <button class="btn" onclick="adicionarNumero('7')">7</button>
+            <button class="btn" onclick="adicionarNumero('8')">8</button>
+            <button class="btn" onclick="adicionarNumero('9')">9</button>
+            <button class="btn operador" onclick="adicionarOperador('-')">-</button>
+            
+            <button class="btn" onclick="adicionarNumero('4')">4</button>
+            <button class="btn" onclick="adicionarNumero('5')">5</button>
+            <button class="btn" onclick="adicionarNumero('6')">6</button>
+            <button class="btn operador" onclick="adicionarOperador('+')">+</button>
+            
+            <button class="btn" onclick="adicionarNumero('1')">1</button>
+            <button class="btn" onclick="adicionarNumero('2')">2</button>
+            <button class="btn" onclick="adicionarNumero('3')">3</button>
+            <button class="btn igual" onclick="calcular()" rowspan="2">=</button>
+            
+            <button class="btn zero" onclick="adicionarNumero('0')">0</button>
+            <button class="btn" onclick="adicionarNumero('.')">.</button>
+        </div>
+    </div>
+
+    <script>
+        let displayAtual = '0';
+        let operadorAnterior = null;
+        let valorAnterior = null;
+        let aguardandoOperando = false;
+        let expressaoCompleta = '';
+
+        const displayElement = document.getElementById('resultado');
+        const expressaoElement = document.getElementById('expressao');
+
+        function atualizarDisplay() {
+            displayElement.textContent = displayAtual;
+            expressaoElement.textContent = expressaoCompleta;
+        }
+
+        function adicionarNumero(numero) {
+            if (aguardandoOperando) {
+                displayAtual = numero;
+                aguardandoOperando = false;
+            } else {
+                if (numero === '.' && displayAtual.includes('.')) {
+                    return;
+                }
+                displayAtual = displayAtual === '0' ? numero : displayAtual + numero;
+            }
+            atualizarDisplay();
+        }
+
+        function obterSimboloOperador(operador) {
+            switch(operador) {
+                case '+': return '+';
+                case '-': return '-';
+                case '*': return '×';
+                case '/': return '÷';
+                default: return operador;
+            }
+        }
+
+        function adicionarOperador(novoOperador) {
+            const valorAtual = parseFloat(displayAtual);
+
+            if (valorAnterior === null) {
+                valorAnterior = valorAtual;
+                expressaoCompleta = displayAtual + ' ' + obterSimboloOperador(novoOperador) + ' ';
+            } else if (operadorAnterior) {
+                const resultado = executarCalculo();
+                displayAtual = String(resultado);
+                valorAnterior = resultado;
+                expressaoCompleta = displayAtual + ' ' + obterSimboloOperador(novoOperador) + ' ';
+                atualizarDisplay();
+            }
+
+            aguardandoOperando = true;
+            operadorAnterior = novoOperador;
+            atualizarDisplay();
+        }
+
+        function executarCalculo() {
+            const anterior = valorAnterior;
+            const atual = parseFloat(displayAtual);
+            let resultado = 0;
+
+            switch (operadorAnterior) {
+                case '+':
+                    resultado = anterior + atual;
+                    break;
+                case '-':
+                    resultado = anterior - atual;
+                    break;
+                case '*':
+                    resultado = anterior * atual;
+                    break;
+                case '/':
+                    if (atual === 0) {
+                        alert('Erro: Divisão por zero!');
+                        limparTudo();
+                        return 0;
+                    }
+                    resultado = anterior / atual;
+                    break;
+                default:
+                    return atual;
+            }
+
+            return Math.round((resultado + Number.EPSILON) * 100000000) / 100000000;
+        }
+
+        function calcular() {
+            if (operadorAnterior && valorAnterior !== null && !aguardandoOperando) {
+                expressaoCompleta += displayAtual + ' = ';
+                displayAtual = String(executarCalculo());
+                atualizarDisplay();
+                valorAnterior = null;
+                operadorAnterior = null;
+                aguardandoOperando = true;
+            }
+        }
+
+        function limparTudo() {
+            displayAtual = '0';
+            valorAnterior = null;
+            operadorAnterior = null;
+            aguardandoOperando = false;
+            expressaoCompleta = '';
+            atualizarDisplay();
+        }
+
+        function limparUltimo() {
+            if (displayAtual.length > 1) {
+                displayAtual = displayAtual.slice(0, -1);
+            } else {
+                displayAtual = '0';
+            }
+            atualizarDisplay();
+        }
+
+        function alternarTema() {
+            const body = document.body;
+            const botaoTema = document.querySelector('.botao-tema');
+            
+            body.classList.toggle('tema-escuro');
+            
+            if (body.classList.contains('tema-escuro')) {
+                botaoTema.textContent = '☀️';
+            } else {
+                botaoTema.textContent = '🌙';
+            }
+        }
+
+        document.addEventListener('keydown', function(evento) {
+            const tecla = evento.key;
+            
+            if (tecla >= '0' && tecla <= '9' || tecla === '.') {
+                adicionarNumero(tecla);
+            } else if (tecla === '+' || tecla === '-' || tecla === '*' || tecla === '/') {
+                adicionarOperador(tecla);
+            } else if (tecla === 'Enter' || tecla === '=') {
+                calcular();
+            } else if (tecla === 'Escape' || tecla === 'c' || tecla === 'C') {
+                limparTudo();
+            } else if (tecla === 'Backspace') {
+                limparUltimo();
+            }
+        });
+
+        atualizarDisplay();
+    </script>
+</body>
+</html>
